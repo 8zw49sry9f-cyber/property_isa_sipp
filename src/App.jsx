@@ -250,6 +250,7 @@ export default function App() {
   const [a, setA] = useState(defaults);
   const [tab, setTab] = useState("overview");
   const [panelOpen, setPanelOpen] = useState(true);
+  const [advancedOpen, setAdvancedOpen] = useState(false);
   const up = useCallback((k) => (v) => setA(p => ({ ...p, [k]: v })), []);
 
   const { comparison } = useMemo(() => runModel(a), [a]);
@@ -293,25 +294,64 @@ export default function App() {
                 <h3 style={{ fontSize: 14, fontWeight: 700, color: "#a5b4fc", margin: "0 0 16px", textTransform: "uppercase", letterSpacing: "0.1em" }}>Assumptions</h3>
                 <Slider label="Time Horizon" value={a.timeHorizon} onChange={up("timeHorizon")} min={5} max={40} step={1} format="years" />
                 <div style={{ height: 1, background: "rgba(99,102,241,0.15)", margin: "16px 0" }} />
+
                 <div style={{ fontSize: 11, color: "#6366f1", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 10 }}>Property</div>
-                <Slider label="Current Market Value" value={a.currentMarketValue} onChange={up("currentMarketValue")} min={100000} max={1000000} step={5000} />
+                <Slider label="Purchase Price" value={a.purchasePrice} onChange={up("purchasePrice")} min={50000} max={1500000} step={5000} />
+                <Slider label="Purchase Costs" value={a.purchaseCosts} onChange={up("purchaseCosts")} min={0} max={50000} step={500} />
+                <Slider label="Current Market Value" value={a.currentMarketValue} onChange={up("currentMarketValue")} min={50000} max={1500000} step={5000} />
                 <Slider label="Outstanding Mortgage" value={a.outstandingMortgage} onChange={up("outstandingMortgage")} min={0} max={500000} step={5000} />
-                <Slider label="Monthly Rent" value={a.monthlyRent} onChange={up("monthlyRent")} min={500} max={5000} step={50} />
-                <Slider label="Property Growth" value={a.propertyGrowth} onChange={up("propertyGrowth")} min={0} max={0.1} step={0.005} format="percent" />
-                <Slider label="Rent Increase" value={a.rentIncrease} onChange={up("rentIncrease")} min={0} max={0.1} step={0.005} format="percent" />
                 <Slider label="Mortgage Rate" value={a.mortgageRate} onChange={up("mortgageRate")} min={0.01} max={0.1} step={0.0025} format="percent" />
                 <Slider label="Remaining Term" value={a.remainingTerm} onChange={up("remainingTerm")} min={1} max={30} step={1} format="years" />
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
+                  <span style={{ fontSize: 12, color: "#94a3b8", fontFamily: "'DM Sans', sans-serif" }}>Mortgage Type</span>
+                  <button onClick={() => up("mortgageRepayment")(!a.mortgageRepayment)} style={{
+                    padding: "4px 12px", borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: "pointer",
+                    fontFamily: "'JetBrains Mono', monospace", border: "1px solid rgba(99,102,241,0.3)",
+                    background: a.mortgageRepayment ? "rgba(99,102,241,0.2)" : "rgba(245,158,11,0.2)",
+                    color: a.mortgageRepayment ? "#a5b4fc" : "#fbbf24",
+                  }}>{a.mortgageRepayment ? "Repayment" : "Interest Only"}</button>
+                </div>
+                <Slider label="Monthly Rent" value={a.monthlyRent} onChange={up("monthlyRent")} min={500} max={5000} step={50} />
+                <Slider label="Rent Increase" value={a.rentIncrease} onChange={up("rentIncrease")} min={0} max={0.1} step={0.005} format="percent" />
+                <Slider label="Property Growth" value={a.propertyGrowth} onChange={up("propertyGrowth")} min={0} max={0.1} step={0.005} format="percent" />
                 <Slider label="Letting Agent Fee" value={a.lettingAgentFee} onChange={up("lettingAgentFee")} min={0} max={0.15} step={0.01} format="percent" />
+                <Slider label="Maintenance" value={a.maintenancePct} onChange={up("maintenancePct")} min={0} max={0.1} step={0.005} format="percent" />
+                <Slider label="Other Annual Costs" value={a.otherAnnualCosts} onChange={up("otherAnnualCosts")} min={0} max={5000} step={100} />
+                <Slider label="Selling Costs" value={a.sellingCostsPct} onChange={up("sellingCostsPct")} min={0} max={0.05} step={0.005} format="percent" />
+
                 <div style={{ fontSize: 11, color: "#6366f1", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 10, marginTop: 16 }}>ISA & SIPP</div>
+                <Slider label="ISA Starting Value" value={a.isaStartingValue} onChange={up("isaStartingValue")} min={0} max={500000} step={5000} />
                 <Slider label="ISA Contribution" value={a.isaContribution} onChange={up("isaContribution")} min={0} max={20000} step={1000} />
+                <Slider label="SIPP Starting Value" value={a.sippStartingValue} onChange={up("sippStartingValue")} min={0} max={500000} step={5000} />
                 <Slider label="SIPP Contribution (Net)" value={a.sippContribution} onChange={up("sippContribution")} min={0} max={40000} step={1000} />
                 <Slider label="Growth Rate" value={a.isaGrowth} onChange={(v) => { up("isaGrowth")(v); up("sippGrowth")(v); }} min={0.02} max={0.12} step={0.005} format="percent" />
                 <Slider label="Platform Fees" value={a.isaPlatformFees} onChange={(v) => { up("isaPlatformFees")(v); up("sippPlatformFees")(v); }} min={0} max={0.02} step={0.001} format="percent" />
+
                 <div style={{ fontSize: 11, color: "#6366f1", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 10, marginTop: 16 }}>Tax Rates</div>
                 <Slider label="Rental Income Tax" value={a.rentalIncomeTaxRate} onChange={up("rentalIncomeTaxRate")} min={0.2} max={0.45} step={0.01} format="percent" />
                 <Slider label="CGT Rate" value={a.cgtRate} onChange={up("cgtRate")} min={0.1} max={0.3} step={0.01} format="percent" />
                 <Slider label="SIPP Tax Relief" value={a.sippTaxRelief} onChange={up("sippTaxRelief")} min={0.2} max={0.45} step={0.01} format="percent" />
                 <Slider label="SIPP Withdrawal Tax" value={a.sippWithdrawalTax} onChange={up("sippWithdrawalTax")} min={0} max={0.4} step={0.01} format="percent" />
+
+                {/* Advanced / HMRC Section */}
+                <div style={{ height: 1, background: "rgba(99,102,241,0.15)", margin: "16px 0" }} />
+                <button onClick={() => setAdvancedOpen(!advancedOpen)} style={{
+                  width: "100%", display: "flex", justifyContent: "space-between", alignItems: "center",
+                  padding: "8px 0", background: "none", border: "none", cursor: "pointer", outline: "none",
+                }}>
+                  <span style={{ fontSize: 11, color: "#6366f1", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.1em" }}>Advanced / HMRC Limits</span>
+                  <span style={{ color: "#6366f1", fontSize: 14, transition: "transform 0.2s", transform: advancedOpen ? "rotate(180deg)" : "rotate(0deg)" }}>▼</span>
+                </button>
+                {advancedOpen && (
+                  <div style={{ marginTop: 10 }}>
+                    <Slider label="CGT Allowance" value={a.cgtAllowance} onChange={up("cgtAllowance")} min={0} max={12000} step={500} />
+                    <Slider label="Mortgage Interest Credit" value={a.mortgageInterestCredit} onChange={up("mortgageInterestCredit")} min={0} max={0.4} step={0.01} format="percent" />
+                    <Slider label="ISA Annual Allowance" value={a.isaAllowance} onChange={up("isaAllowance")} min={0} max={40000} step={1000} />
+                    <Slider label="SIPP Annual Allowance" value={a.sippAllowance} onChange={up("sippAllowance")} min={0} max={100000} step={5000} />
+                    <Slider label="Marginal Income Tax" value={a.marginalTaxRate} onChange={up("marginalTaxRate")} min={0.2} max={0.45} step={0.01} format="percent" />
+                  </div>
+                )}
+
                 <button onClick={() => setA(defaults)} style={{ width: "100%", marginTop: 16, padding: "10px", borderRadius: 10, background: "rgba(99,102,241,0.1)", border: "1px solid rgba(99,102,241,0.2)", color: "#a5b4fc", fontSize: 12, fontWeight: 600, cursor: "pointer", fontFamily: "'DM Sans', sans-serif" }}>Reset to Defaults</button>
               </div>
             )}
